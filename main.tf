@@ -185,7 +185,8 @@ resource "aws_autoscaling_policy" "main" {
 
 # This depends on target group
 resource "aws_lb_listener_rule" "main" {
-  listener_arn = local.backend_alb_listener_arn
+
+  listener_arn = var.component == "frontend" ? local.frontend_alb_listener_arn : local.backend_alb_listener_arn
   priority     = var.rule_priority
 
   action {
