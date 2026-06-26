@@ -60,7 +60,7 @@ resource "aws_ami_from_instance" "main" {
 
 resource "aws_lb_target_group" "main" {
   name     = "${var.project}-${var.environment}-${var.component}"
-  port     = 8080
+  port     = var.component == "frontend" ? "80" : "8080"
   protocol = "HTTP"
   vpc_id   = local.vpc_id
   deregistration_delay = 60
@@ -69,8 +69,8 @@ resource "aws_lb_target_group" "main" {
     healthy_threshold = 2
     interval = 10
     matcher = "200-299"
-    path = "/health"
-    port = 8080
+    path = var.component == "frontend" ? "/" : "/health"
+    port = var.component == "frontend" ? "80" : "8080"
     protocol = "HTTP"
     timeout = 2
     unhealthy_threshold = 3
@@ -195,7 +195,7 @@ resource "aws_lb_listener_rule" "main" {
 
   condition {
     host_header {
-      values = ["${var.component}.backend-alb-${var.environment}.${var.domain_name}"]
+      values = [local.host_header]
     }
   }
 }
